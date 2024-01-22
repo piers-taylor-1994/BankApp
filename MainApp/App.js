@@ -83,6 +83,9 @@ function App() {
             case "hsbc":
                 imgPath = require("./images/hsbc.png");
                 break;
+            case "barclays":
+                imgPath = require("./images/barclays.png");
+                break;
             default:
                 imgPath = require("./images/amex.png");
                 break;
@@ -118,7 +121,7 @@ function App() {
 
     const addRow = () => {
         let newArray = array;
-        newArray.push({
+        newArray.unshift({
             id: newArray.length,
             bank: bank.toLowerCase(),
             name: name,
