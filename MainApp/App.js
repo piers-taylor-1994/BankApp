@@ -92,7 +92,7 @@ function App() {
         }
         return (
             <View key={c.id} style={styles.row}>
-                <Image style={{ height: 10, width: 15 }} source={imgPath} />
+                <Image style={{ height: 20, width: 20 }} source={imgPath} />
                 <Text style={styles.row.text}>{c.name}</Text>
                 <View style={{ position: "absolute", left: 175 }}>
                     <Text style={styles.row.text}>{c.cvc}</Text>
