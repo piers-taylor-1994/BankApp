@@ -86,8 +86,11 @@ function App() {
             case "barclays":
                 imgPath = require("./images/barclays.png");
                 break;
+            case "virgin":
+                imgPath = require("./images/virgin.png");
+                break;
             default:
-                imgPath = require("./images/amex.png");
+                imgPath = require("./images/bank.png");
                 break;
         }
         return (
