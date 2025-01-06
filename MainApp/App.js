@@ -16,6 +16,8 @@ function App() {
     const [pin, setPin] = useState("");
     const [cvc, setCvc] = useState("");
 
+    const [cardId, setCardId] = useState(null);
+
     async function storeData(key, value) {
         try {
             await EncryptedStorage.setItem(key, JSON.stringify(value));
@@ -71,6 +73,16 @@ function App() {
         biometrics.current = true;
     }
 
+    const editCard = (c) => {
+        let chosenCard = array.find((card) => card.id === c.id);
+        setBank(chosenCard.bank.toLowerCase());
+        setName(chosenCard.name);
+        setPin(chosenCard.pin);
+        setCvc(chosenCard.cvc);
+        setCardId(c.id);
+        setShowModal(true);
+    }
+
     const toRow = (c) => {
         let imgPath;
         switch (c.bank) {
@@ -89,6 +101,9 @@ function App() {
             case "virgin":
                 imgPath = require("./images/virgin.png");
                 break;
+            case "firstdirect":
+                imgPath = require("./images/firstdirect.png");
+                break;
             default:
                 imgPath = require("./images/bank.png");
                 break;
@@ -97,11 +112,14 @@ function App() {
             <View key={c.id} style={styles.row}>
                 <Image style={{ height: 20, width: 20 }} source={imgPath} />
                 <Text style={styles.row.text}>{c.name}</Text>
-                <View style={{ position: "absolute", left: 175 }}>
+                <View style={{ position: "absolute", left: 185 }}>
                     <Text style={styles.row.text}>{c.cvc}</Text>
                 </View>
-                <View style={{ position: "absolute", left: 250 }}>
+                <View style={{ position: "absolute", left: 240 }}>
                     <Text style={styles.row.text}>{c.pin}</Text>
+                </View>
+                <View style={{ position: "absolute", left: 300, width: 50, borderRadius: 50 }}>
+                    <Button title="Edit" onPress={() => editCard(c)} />
                 </View>
             </View>
         )
@@ -111,10 +129,10 @@ function App() {
         ? <></>
         : validated ? <>
             <Text style={styles.row.textBold}>Bank</Text>
-            <View style={{ position: "absolute", left: 175 }}>
+            <View style={{ position: "absolute", left: 185 }}>
                 <Text style={styles.row.textBold}>CVC</Text>
             </View>
-            <View style={{ position: "absolute", left: 250 }}>
+            <View style={{ position: "absolute", left: 240 }}>
                 <Text style={styles.row.textBold}>Pin</Text>
             </View>
         </>
@@ -142,6 +160,43 @@ function App() {
         setShowModal(!showModal);
     }
 
+    const editRow = () => {
+        let newArray = array;
+        let objIndex = newArray.findIndex(obj => obj.id == cardId);
+
+        newArray[objIndex].bank = bank;
+        newArray[objIndex].name = name;
+        newArray[objIndex].pin = pin;
+        newArray[objIndex].cvc = cvc;
+
+
+        storeData("data", newArray);
+
+        setBank("");
+        setName("");
+        setPin("");
+        setCvc("");
+        setCardId(null);
+
+        setShowModal(!showModal);
+        }
+
+    const deleteRow = () => {
+        let newArray = array;
+        newArray = newArray.filter(obj => obj.id !== cardId);
+
+        setArray(newArray);
+        storeData("data", newArray);
+
+        setBank("");
+        setName("");
+        setPin("");
+        setCvc("");
+        setCardId(null);
+
+        setShowModal(!showModal);
+    }
+
     const modal = <Modal animationType="slide"
         transparent={true}
         visible={showModal}
@@ -152,17 +207,27 @@ function App() {
         <View style={styles.centeredView}>
             <View style={styles.modalView}>
                 <View style={styles.inputView}>
-                    <Text style={styles.modalHeader}>Add card</Text>
+                    <Text style={styles.modalHeader}>{cardId !== null ? "Edit card" : "Add card"}</Text>
                     <TextInput style={styles.input} value={bank} placeholder={"Bank"} onChangeText={setBank} />
                     <TextInput style={styles.input} value={name} placeholder={"Name"} onChangeText={setName} />
-                    <TextInput style={styles.input} value={pin} placeholder={"Pin"} onChangeText={setPin} />
                     <TextInput style={styles.input} value={cvc} placeholder={"CVC"} onChangeText={setCvc} />
+                    <TextInput style={styles.input} value={pin} placeholder={"Pin"} onChangeText={setPin} />
                 </View>
+                <View style={{ display: "flex", flexDirection: "row", gap: 15 }}>
                 <Pressable
                     style={[styles.button, styles.buttonClose]}
-                    onPress={addRow}>
+                    onPress={cardId !== null ? editRow : addRow}>
                     <Text style={styles.textStyle}>Submit</Text>
                 </Pressable>
+                {cardId !== null
+                ? <Pressable
+                    style={[styles.button, styles.buttonClose, styles.buttonDelete]}
+                    onPress={deleteRow}>
+                    <Text style={styles.textStyle}>Delete</Text>
+                    </Pressable>
+                : <></>}
+
+                </View>
             </View>
         </View>
     </Modal>
@@ -195,7 +260,7 @@ const styles = StyleSheet.create({
         display: "flex",
         gap: 20,
         marginTop: 20,
-        marginLeft: 7.5
+        marginLeft: 0
     },
     row: {
         display: "flex",
@@ -286,6 +351,9 @@ const styles = StyleSheet.create({
     },
     buttonClose: {
         backgroundColor: '#2196F3',
+    },
+    buttonDelete: {
+        backgroundColor: '#FF0000',
     },
     textStyle: {
         color: 'white',
